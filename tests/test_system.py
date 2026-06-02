@@ -126,3 +126,27 @@ def test_predict_before_train_raises():
     X = np.random.rand(10, 5)
     with pytest.raises(RuntimeError):
         system.predict(X)
+
+
+def test_end_to_end_integration():
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.ensemble import RandomForestClassifier
+    from auditorai.adapters.base import wrap
+    from auditorai.core.system import AuditorSystem
+
+    data = load_breast_cancer()
+    X, y = data.data, data.target
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
+    X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+    primary = RandomForestClassifier(n_estimators=50, random_state=42)
+    primary.fit(X_train, y_train)
+    adapter = wrap(primary)
+
+    system = AuditorSystem(adapter)
+    system.train(X_val, y_val)
+    system.auto_tune(X_val, y_val)
+    metrics = system.evaluate(X_test, y_test)
+    assert metrics["auditor_auroc"] > 0.5
+

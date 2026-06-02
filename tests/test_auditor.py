@@ -122,3 +122,64 @@ def test_save_load_roundtrip(tmp_path, dataset, trained_primary):
     scores_after = new_auditor.p_wrong(X[200:], trained_primary)
 
     np.testing.assert_allclose(scores_before, scores_after, rtol=1e-5)
+
+
+def test_feature_fn_shapes(dataset, trained_primary):
+    X, y = dataset
+    
+    # Custom feature fn that returns the ratio of class 1 probability to class 0 probability
+    def dummy_feature_fn(probas, predictions):
+        return probas[:, 1] / (probas[:, 0] + 1e-5)
+
+    auditor = AuditorModel(feature_fn=dummy_feature_fn)
+    probas = trained_primary.predict_proba(X[:50])
+    augmented = auditor._build_features(X[:50], probas)
+    
+    # 10 original features + 4 derived + 1 custom = 15
+    assert augmented.shape == (50, 15)
+
+
+def test_feature_fn_fit_and_predict(dataset, trained_primary):
+    X, y = dataset
+
+    def sum_feature_fn(probas, predictions):
+        # returns 2 custom features
+        c1 = probas[:, 0:1] + 0.1
+        c2 = probas[:, 1:2] * 2.0
+        return np.hstack([c1, c2])
+
+    auditor = AuditorModel(feature_fn=sum_feature_fn)
+    auditor.fit(X[200:], y[200:], trained_primary)
+    
+    # 10 original features + 4 derived + 2 custom = 16
+    probas = trained_primary.predict_proba(X[:50])
+    augmented = auditor._build_features(X[:50], probas)
+    assert augmented.shape == (50, 16)
+    
+    scores = auditor.p_wrong(X[:50], trained_primary)
+    assert len(scores) == 50
+
+
+def test_from_errors_constructor(dataset, trained_primary):
+    X, y = dataset
+    # Get primary predictions and probas
+    primary_preds = trained_primary.predict(X[200:])
+    primary_probas = trained_primary.predict_proba(X[200:])
+    error_mask = (primary_preds != y[200:])
+
+    # Instantiate via from_errors
+    auditor = AuditorModel.from_errors(
+        X=X[200:],
+        error_mask=error_mask,
+        primary_probas=primary_probas,
+        threshold=0.6
+    )
+
+    assert isinstance(auditor, AuditorModel)
+    assert auditor.threshold == 0.6
+    assert auditor.pipeline_ is not None
+
+    scores = auditor.p_wrong(X[200:], trained_primary)
+    assert len(scores) == len(X[200:])
+
+
