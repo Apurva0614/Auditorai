@@ -9,6 +9,7 @@ and suppresses those predictions before they reach the human.
 from auditorai.core.system import AuditorSystem, audit
 from auditorai.adapters.base import wrap, ModelAdapter
 from auditorai.core.evaluate import run_full_evaluation
+from auditorai.monitor import AuditorDriftDetector
 
 # Lazy imports for optional adapters
 def __getattr__(name):
@@ -38,4 +39,5 @@ __all__ = [
     "HuggingFaceAdapter",
     "APIAdapter",
     "run_full_evaluation",
+    "AuditorDriftDetector",
 ]
