@@ -1,0 +1,3 @@
+"""
+AuditorAI CLI package.
+"""
