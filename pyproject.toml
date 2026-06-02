@@ -46,9 +46,11 @@ dev       = ["pytest>=7.4.0", "pytest-cov>=4.1.0"]
 auditorai = "auditorai.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/YOUR_USERNAME/auditor-model"
-Repository = "https://github.com/YOUR_USERNAME/auditor-model"
-Issues = "https://github.com/YOUR_USERNAME/auditor-model/issues"
+Homepage = "https://github.com/Apurva0614/Auditorai"
+Repository = "https://github.com/Apurva0614/Auditorai"
+Issues = "https://github.com/Apurva0614/Auditorai/issues"
+Documentation = "https://github.com/Apurva0614/Auditorai#readme"
+Changelog = "https://github.com/Apurva0614/Auditorai/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["."]

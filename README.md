@@ -1,5 +1,7 @@
 # AuditorAI
 
+[![CI](https://github.com/Apurva0614/Auditorai/actions/workflows/ci.yml/badge.svg)](https://github.com/Apurva0614/Auditorai/actions/workflows/ci.yml)
+
 **Universal auditor model for human-AI systems.**
 
 AuditorAI wraps any AI model -- sklearn, PyTorch, HuggingFace, or LLM APIs -- with a second model that learns when the first one is likely wrong, and suppresses those predictions before they reach the human. The result is higher joint accuracy with fewer wrong AI predictions shown to users.
